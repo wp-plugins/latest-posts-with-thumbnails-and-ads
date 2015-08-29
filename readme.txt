@@ -2,8 +2,8 @@
 Contributors: emilushi
 Tags: widget, latest post, recent posts, sidebar, latest posts with thumbnails, thumbnails, ads
 Requires at least: 3.2
-Tested up to: 4.2.2
-Stable tag: 1.0
+Tested up to: 4.3
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,3 +29,10 @@ This plugin will generate a widget for you website where you can show latest pos
 
 = 1.0 =
 * Initial release.
+
+= 1.0.1 =
+* Fix to make plugin compatibile with WordPress 4.3
+* Fix "Notice: Trying to get property of non-object in ..." when the widget is desplayed on homepage or single page.
+* Fix "Warning: Division by zero in ..." when "Display ads every X post" is set 0.
+* Fix remove empty div when Ads Code textarea is left empty.
+* Added choose Image size option.

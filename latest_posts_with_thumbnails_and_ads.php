@@ -3,7 +3,7 @@
 * Plugin Name: Latest Posts With Thumbnails and Ads
 * Plugin URI: http://www.shomtek.com/plugins/latest_posts_with_thumbnails_and_ads
 * Description: Simple wordpress plugin that shows latest posts of your blog with pics, possibility to show your ads between posts. If the widget genereted by the plugin will be showed on a single post page the current post will be hidden from the list. <a href="http://www.shomtek.com" title="SHOMTek">www.shomtek.com</a>
-* Version: 1.0
+* Version: 1.0.1
 * Author: Eduart Milushi
 * Author URI: http://shomtek.com
 * License: GPL2

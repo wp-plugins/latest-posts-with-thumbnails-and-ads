@@ -1,4 +1,11 @@
 <?php
+/*--------------------------------------------------------------
+Copyright (C) shomtek.com
+Website: http://www.shomtek.com
+Support: info@shomtek.com
+Author: Eduart Milushi
+---------------------------------------------------------------*/
+
 
 if( !class_exists('shomtek_latest_posts') ){
 
@@ -12,7 +19,7 @@ if( !class_exists('shomtek_latest_posts') ){
 
       $control_settings = array( 'id_base' => 'shomtek_latest_posts' );
 
-      $this->WP_Widget( 'shomtek_latest_posts', __('Latest posts with thumbnails', 'shomtek'), $widget_settings, $control_settings );
+      parent::__construct( 'shomtek_latest_posts', __('Latest posts with thumbnails', 'shomtek'), $widget_settings, $control_settings );
 
     }
 
@@ -21,31 +28,35 @@ if( !class_exists('shomtek_latest_posts') ){
 
       $instance = wp_parse_args( (array) $instance, array(
 
-        'title' => 'Latest Posts with Pics',
+        'title'               => 'Latest Posts with Pics',
 
-        'adstext' => '',
+        'image_size'          => 'medium',
 
-        'comments_number' => 1,
+        'adstext'             => '',
 
-        'showdate' => 1,
+        'comments_count'     => 1,
 
-        'number' => 8,
+        'showdate'            => 1,
 
-        'adsnumber' => 4,
+        'number'              => 8,
+
+        'adsnumber'           => 4,
 
         )
 
       );
 
-      $title = strip_tags($instance['title']); // widget title
+      $title = esc_attr($instance['title']); // widget title
 
-      $number = strip_tags($instance['number']); // number of posts to show
+      $image_size = $instance['image_size']; // post image size
+
+      $number = intval($instance['number']); // number of posts to show
 
       $comments_count = ( $instance['comments_count'] === 1 ) ? true : false; // show/hide comments count
 
       $showdate = ( $instance['showdate'] === 1 ) ? true : false; // show/hide post date 
 
-      $adsnumber = strip_tags($instance['adsnumber']); // Show ads between posts
+      $adsnumber = intval($instance['adsnumber']); // Show ads between posts
 
       $adstext = esc_textarea($instance['adstext']); //Ads text html or js
 
@@ -59,6 +70,15 @@ if( !class_exists('shomtek_latest_posts') ){
       <p>
         <label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php _e('Number of posts to show:', 'shomtek') ?></label>
         <input type="text" id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" value="<?php echo $instance['number']; ?>" size="3"/>
+      </p>
+
+      <p>
+        <label for="<?php echo $this->get_field_id('image_size'); ?>"><?php _e('Select Image Size', 'shomtek'); ?></label>
+        <select class="widefat" id="<?php echo $this->get_field_id('image_size'); ?>" name="<?php echo $this->get_field_name('image_size'); ?>" style="width:100%;">
+            <option value='thumbnail'<?php echo ($image_size=='thumbnail')?'selected':''; ?>><?php _e('Thumbnail', 'shomtek'); ?></option>
+            <option value='medium'<?php echo ($image_size=='medium')?'selected':''; ?>><?php _e('Medium', 'shomtek'); ?></option>
+            <option value='large'<?php echo ($image_size=='large')?'selected':''; ?>><?php _e('Large', 'shomtek'); ?></option>
+        </select>
       </p>
 
       <p>
@@ -93,13 +113,15 @@ if( !class_exists('shomtek_latest_posts') ){
 
       $instance['title'] = strip_tags( $new_instance['title'] );
 
-      $instance['number'] = strip_tags( $new_instance['number'] );
+      $instance['image_size'] = $new_instance['image_size'];
+
+      $instance['number'] =  intval($new_instance['number']) ;
 
       $instance['comments_count'] = isset( $new_instance['comments_count']) ? 1 : 0;
 
       $instance['showdate'] = isset( $new_instance['showdate'] ) ? 1 : 0;
 
-      $instance['adsnumber'] = strip_tags( $new_instance['adsnumber'] );
+      $instance['adsnumber'] =  intval($new_instance['adsnumber']) ;
 
       if ( current_user_can('unfiltered_html') )
 
@@ -120,31 +142,28 @@ if( !class_exists('shomtek_latest_posts') ){
 
       $title = apply_filters('widget_title', empty($instance['title']) ? '' : $instance['title'], $instance, $this->id_base);
 
+      $image_size = $instance['image_size'];
+
       $number = $instance['number'];
 
       $comments_count = $instance['comments_count'];
 
       $showdate = $instance['showdate'];
 
-      $adsnumber = $instance['adsnumber'];
-
       $adstext = apply_filters( 'widget_text', empty( $instance['adstext'] ) ? '' : $instance['adstext'], $instance );
 
-      echo $before_widget;
-
-      if ( $title )
-
-        echo $before_title . $title . $after_title;
-
+      $adsnumber = $instance['adsnumber'];
 
       //query post
-      $query = new WP_Query();
-
       $queried_object = get_queried_object();
 
-      $this_post = $queried_object->ID;
+      if ( is_single() ) {
+        $this_post = $queried_object->ID;
+      } else {
+        $this_post = '';
+      }
 
-      $query -> query( array(
+      $query_arg = array(
 
         'posts_per_page' => $number,
 
@@ -174,7 +193,17 @@ if( !class_exists('shomtek_latest_posts') ){
 
           )
 
-        ));
+        );
+
+        $query = new WP_Query($query_arg);
+
+        echo $before_widget;
+
+        if ( $title ):
+          echo $before_title; 
+          echo $title;
+          echo $after_title;
+        endif;
 
         $postnum = 0;
 
@@ -188,7 +217,7 @@ if( !class_exists('shomtek_latest_posts') ){
               
               <?php if(has_post_thumbnail()) { 
 
-                the_post_thumbnail('medium', array('class' => 'shomtek_post_image'));
+                the_post_thumbnail( $image_size, array('class' => 'shomtek_post_image'));
               
               } else {
 
@@ -228,19 +257,21 @@ if( !class_exists('shomtek_latest_posts') ){
 
           </div>
 
-          <?php $postnum++;
+          <?php if ( $adstext != NULL && $adsnumber !=0 && $adsnumber != NULL ):?>
+            <?php $postnum++;
 
-          if ($postnum % $adsnumber == 0) { ?>
-            
-            <div class="show_ads">
+            if ($postnum % $adsnumber == 0) { ?>
+              
+              <div class="show_ads">
 
-              <?php echo $adstext; ?>
+                <?php echo $adstext; ?>
 
-            </div>
+              </div>
 
-      <?php }
+            <?php } ?>
+          <?php endif; ?>
 
-        endwhile; endif; 
+      <?php  endwhile; endif; 
 
       wp_reset_query();
 
